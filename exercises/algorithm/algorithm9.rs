@@ -2,7 +2,6 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -38,6 +37,9 @@ where
 
     pub fn add(&mut self, value: T) {
         //TODO
+        self.count += 1;
+        self.items.push(value);
+        self.swim(self.count);
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -56,9 +58,33 @@ where
         self.left_child_idx(idx) + 1
     }
 
-    fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+    
+    fn swim(&mut self, mut idx: usize) {
+        while idx > 1 && (self.comparator)(&self.items[idx], &self.items[self.parent_idx(idx)]) {
+            let parent_idx = self.parent_idx(idx);
+            self.items.swap(idx, parent_idx);
+            idx = parent_idx;
+        }
+    }
+
+    fn sink(&mut self, _idx: usize){
+        let mut idx = _idx;
+        while self.left_child_idx(idx) <= self.count {
+            let mut swap = self.left_child_idx(idx);
+
+            if self.right_child_idx(idx) <= self.count
+                && (self.comparator)(&self.items[self.right_child_idx(idx)], &self.items[swap])
+            {
+                swap = self.right_child_idx(idx);
+            }
+
+            if !(self.comparator)(&self.items[swap], &self.items[idx]) {
+                break;
+            }
+
+            self.items.swap(idx, swap);
+            idx = swap;
+        }
     }
 }
 
@@ -79,13 +105,23 @@ where
 
 impl<T> Iterator for Heap<T>
 where
-    T: Default,
+    T: Default + Clone,
 {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
         //TODO
-		None
+        if self.is_empty() {
+            return None;
+        }
+
+        let top = self.items[1].clone();
+        self.items[1] = self.items[self.count].clone();
+        self.items.pop();
+        self.count -= 1;
+        self.sink(1);
+
+        Some(top)
     }
 }
 

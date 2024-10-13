@@ -2,11 +2,9 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
-use std::vec::*;
 
 #[derive(Debug)]
 struct Node<T> {
@@ -69,16 +67,43 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+	pub fn merge(list_a: Self, list_b: Self) -> Self 
+    where T: PartialOrd
+    {
+        let mut result = Self::new();
+        let mut a = list_a.start;
+        let mut b = list_b.start;
+
+        while let (Some(a_ptr), Some(b_ptr)) = (a, b) {
+            let a_val = unsafe { &(*a_ptr.as_ptr()).val };
+            let b_val = unsafe { &(*b_ptr.as_ptr()).val };
+
+            if a_val <= b_val {
+
+                let node = unsafe { Box::from_raw(a_ptr.as_ptr()) };
+                a = node.next; // 更新 a 指针
+                result.add(node.val);
+            } else {
+                let node = unsafe { Box::from_raw(b_ptr.as_ptr()) };
+                b = node.next; // 更新 b 指针
+                result.add(node.val);
+            }
         }
-	}
+
+        for remaining in [&mut a, &mut b] {
+            while let Some(ptr) = *remaining {
+                let node = unsafe { Box::from_raw(ptr.as_ptr()) };
+                *remaining = node.next; // 更新 remaining 指针
+                result.add(node.val);
+            }
+        }
+
+        result.length = list_a.length + list_b.length;
+
+        result
+    }
 }
+
 
 impl<T> Display for LinkedList<T>
 where

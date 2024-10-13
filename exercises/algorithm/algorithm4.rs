@@ -3,7 +3,6 @@
 	This problem requires you to implement a basic interface for a binary tree
 */
 
-//I AM NOT DONE
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
@@ -50,14 +49,27 @@ where
 
     // Insert a value into the BST
     fn insert(&mut self, value: T) {
-        //TODO
+        if let Some(ref mut root) = self.root {
+            root.insert(value);
+        } else {
+            self.root = Some(Box::new(TreeNode::new(value)));
+        }
     }
-
+   
     // Search for a value in the BST
     fn search(&self, value: T) -> bool {
-        //TODO
-        true
+        let mut ptr = &self.root; // 使用引用而不是解构 Box
+
+        while let Some(ref node) = *ptr {
+            match node.value.cmp(&value) {
+                Ordering::Equal => return true,
+                Ordering::Less => ptr = &node.left,
+                Ordering::Greater => ptr = &node.right,
+            }
+        }
+        false
     }
+
 }
 
 impl<T> TreeNode<T>
@@ -67,6 +79,30 @@ where
     // Insert a node into the tree
     fn insert(&mut self, value: T) {
         //TODO
+        match self.value.cmp(&value) {
+            Ordering::Less => {
+                if let Some(ref mut left) = self.left {
+                    left.insert(value);
+                } else {
+                    self.left = Some(Box::new(TreeNode::new(value)));
+                }
+            }
+            Ordering::Greater => {
+                if let Some(ref mut right) = self.right {
+                    right.insert(value);
+                } else {
+                    self.right = Some(Box::new(TreeNode::new(value)));
+                }
+            }
+            Ordering::Equal => {} // Do nothing if the value is already in the tree
+        }
+    }
+    fn search(&self, value: T) -> bool {
+        match self.value.cmp(&value) {
+            Ordering::Less => self.left.as_ref().map_or(false, |left| left.search(value)),
+            Ordering::Greater => self.right.as_ref().map_or(false, |right| right.search(value)),
+            Ordering::Equal => true,
+        }
     }
 }
 

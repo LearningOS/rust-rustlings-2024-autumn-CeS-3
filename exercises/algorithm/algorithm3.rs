@@ -3,10 +3,25 @@
 	This problem requires you to implement a sorting algorithm
 	you can use bubble sorting, insertion sorting, heap sorting, etc.
 */
-// I AM NOT DONE
 
-fn sort<T>(array: &mut [T]){
-	//TODO
+fn sort<T>(array: &mut [T])
+    where T: PartialOrd
+{
+    let len = array.len();
+
+    let mut flag = true;
+    let mut last_swap = len - 1;
+
+    while flag {
+        flag = false;
+        for i in 0..last_swap {
+            if array[i] > array[i + 1] {
+                array.swap(i, i + 1);
+                flag = true;
+                last_swap = i; // 记录最后一次交换的位置
+            }
+        }
+    }
 }
 #[cfg(test)]
 mod tests {
